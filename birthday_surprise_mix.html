@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>สำหรับคนพิเศษของมิกซ์ 💖</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; overflow:hidden;
+  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:radial-gradient(circle at 50% 20%,#4b235f 0,#170d2b 45%,#070511 100%);
+  color:#fff; display:flex; align-items:center; justify-content:center;
+}
+.stars,.confetti{position:fixed;inset:0;pointer-events:none}
+.stars:before{content:"";position:absolute;inset:0;background-image:
+ radial-gradient(#fff 1px,transparent 1px),radial-gradient(#fff 1px,transparent 1px);
+ background-size:90px 90px,140px 140px;background-position:10px 20px,50px 70px;opacity:.35}
+.card{
+ width:min(92vw,560px); min-height:680px; padding:38px 25px;
+ border:1px solid rgba(255,255,255,.16); border-radius:32px;
+ background:rgba(255,255,255,.08); backdrop-filter:blur(16px);
+ box-shadow:0 25px 80px rgba(0,0,0,.45); text-align:center;
+ position:relative; z-index:2;
+}
+h1{font-size:clamp(30px,8vw,48px);margin:4px 0 8px}
+.sub{opacity:.82;margin:0 0 22px}
+.cake{font-size:150px;line-height:1;filter:drop-shadow(0 15px 25px rgba(255,120,190,.25));margin:12px 0}
+.candles{font-size:48px;letter-spacing:8px;margin-top:-38px;position:relative;z-index:2}
+.flame{display:inline-block;animation:flicker .55s infinite alternate}
+@keyframes flicker{to{transform:scale(1.12) rotate(2deg);filter:drop-shadow(0 0 12px #ffd36a)}}
+button{
+ border:0;border-radius:999px;padding:15px 24px;font-size:17px;font-weight:700;
+ cursor:pointer;background:linear-gradient(135deg,#ff74b9,#a76bff);color:white;
+ box-shadow:0 10px 30px rgba(255,100,190,.25)
+}
+button:disabled{opacity:.55;cursor:default}
+.hint{font-size:14px;opacity:.7;margin:16px 0}
+#message{display:none;animation:pop .7s ease}
+@keyframes pop{from{transform:scale(.75);opacity:0}to{transform:scale(1);opacity:1}}
+#message h2{font-size:34px;margin:10px}
+#message p{line-height:1.8;opacity:.9}
+#status{min-height:24px;margin-top:12px;font-size:14px;color:#ffd7ec}
+#meter{width:180px;height:8px;background:rgba(255,255,255,.15);border-radius:99px;margin:10px auto;overflow:hidden;display:none}
+#bar{height:100%;width:0;background:#ff8ac7;transition:width .08s}
+#surprise{display:none}
+.float{position:fixed;font-size:24px;animation:fall 3s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(500deg);opacity:0}}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="card">
+  <div id="intro">
+    <div style="font-size:14px;opacity:.7">A little surprise for you ✨</div>
+    <h1>สุขสันต์วันเกิดนะ 💖</h1>
+    <p class="sub">ก่อนจะอ่านของขวัญชิ้นนี้... ขอให้คนพิเศษเป่าเทียนก่อน</p>
+
+    <div class="cake">🎂</div>
+    <div class="candles" id="candles">
+      <span class="flame">🕯️</span><span class="flame">🕯️</span><span class="flame">🕯️</span>
+    </div>
+
+    <p class="hint">กดปุ่มด้านล่าง แล้วเป่าใส่ไมโครโฟน 💨</p>
+    <button id="blowBtn">🎙️ เปิดไมค์เพื่อเป่าเทียน</button>
+    <div id="meter"><div id="bar"></div></div>
+    <div id="status"></div>
+  </div>
+
+  <div id="message">
+    <div style="font-size:85px">🎉</div>
+    <h2>เทียนดับแล้ว! 💕</h2>
+    <p>
+      ขอให้ปีนี้เป็นปีที่มีแต่เรื่องดี ๆ เข้ามา<br>
+      ขอบคุณที่เข้ามาเป็นความสุขในชีวิตนะ<br><br>
+      <b>รักและอยู่ข้าง ๆ เสมอ — จากมิกซ์ ❤️</b>
+    </p>
+    <button id="again">✨ ดูเซอร์ไพรส์อีกครั้ง</button>
+  </div>
+</div>
+
+<script>
+const btn=document.getElementById("blowBtn");
+const status=document.getElementById("status");
+const meter=document.getElementById("meter");
+const bar=document.getElementById("bar");
+let stream, audioCtx, analyser, data, raf, blown=false;
+
+function celebrate(){
+  if(blown)return; blown=true;
+  cancelAnimationFrame(raf);
+  if(stream) stream.getTracks().forEach(t=>t.stop());
+  document.querySelectorAll(".flame").forEach(x=>x.textContent="💨");
+  setTimeout(()=>{
+    document.getElementById("intro").style.display="none";
+    document.getElementById("message").style.display="block";
+    for(let i=0;i<70;i++){
+      const e=document.createElement("div"); e.className="float";
+      e.textContent=["🎉","✨","💖","🎈","⭐"][Math.floor(Math.random()*5)];
+      e.style.left=Math.random()*100+"vw"; e.style.top="-30px";
+      e.style.animationDelay=(Math.random()*.8)+"s";
+      document.body.appendChild(e); setTimeout(()=>e.remove(),3800);
+    }
+  },700);
+}
+function listen(){
+  analyser.fftSize=512; data=new Uint8Array(analyser.fftSize);
+  meter.style.display="block";
+  function loop(){
+    analyser.getByteTimeDomainData(data);
+    let sum=0;
+    for(let i=0;i<data.length;i++){let v=(data[i]-128)/128;sum+=v*v}
+    let rms=Math.sqrt(sum/data.length);
+    let level=Math.min(100,rms*500);
+    bar.style.width=level+"%";
+    if(level>38){ celebrate(); return; }
+    raf=requestAnimationFrame(loop);
+  }
+  loop();
+}
+btn.onclick=async()=>{
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(stream);
+    analyser=audioCtx.createAnalyser(); analyser.smoothingTimeConstant=.35;
+    src.connect(analyser);
+    btn.disabled=true; btn.textContent="💨 เป่าเลย!";
+    status.textContent="เป่าแรง ๆ ใส่ไมค์ได้เลย...";
+    listen();
+  }catch(e){
+    status.textContent="เบราว์เซอร์ไม่ได้รับอนุญาตให้ใช้ไมค์ — กดปุ่มอีกครั้งแล้วอนุญาต Microphone";
+  }
+};
+document.getElementById("again").onclick=()=>location.reload();
+</script>
+</body>
+</html>
